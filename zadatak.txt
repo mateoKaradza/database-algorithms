@@ -1,0 +1,13 @@
+3)	Normalizacija u treću normalnu formu.
+
+Potrebno je napraviti bazu podataka u kojoj će se pohranjivati relacijske sheme,
+ključevi koji u njima postoje i skup funkcionalnih ovisnosti koje u njima postoje.
+
+U svakoj shemi se nalazi minimalno deset atributa i minimalno pet funkcionalnih ovisnosti
+te popis ključeva. U bazu je potrebno prije same obrane imati uneseno barem pet primjera.
+
+Izraditi aplikaciju (u bilo kojem programskom alatu) kojom će se moći pregledavati i/ili
+brisati uneseni skupovi, ključevi i sheme te unositi neke nove.
+Kroz aplikaciju riješiti da se može odabrati relacijska shema,
+ a aplikacija će potom izračunati dekompoziciju u treću normalnu formu.
+ Uz rezultat će prikazati i adekvatno obrazloženje, tj. postupak.
