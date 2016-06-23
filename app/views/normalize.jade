@@ -1,0 +1,224 @@
+extends layout.jade
+
+block title
+  title Normalize Into 3rd Normal Form
+
+block body
+  h1 Normalize to 3rd Normal Form
+  a(href="/Schemas/" + schema.schema_id, class="btn btn-primary") Go back				
+  if pkeys.length
+    h4 Primary Keys
+    table.table.table-striped
+      thead
+        tr
+          th Content
+      tbody
+        each pkey in pkeys
+          tr
+            td 
+              if pkey.string
+                | #{pkey.string}
+              else
+                | empty
+
+  if dependencies.length
+    h4 Dependencies
+    table.table.table-striped
+      thead
+        tr
+          th Content
+      tbody
+        each dependency in dependencies
+          tr
+            td 
+              if dependency.string
+                | #{dependency.string}
+              else
+                | empty
+    h3 Result
+    div#theResult
+    script.
+      var pkeys = !{JSON.stringify(pkeys)};
+      var dependencies = !{JSON.stringify(dependencies)};
+      
+      var content = "";
+      var resultDiv = document.getElementById('theResult');
+      
+      function normalize(pkeys, dependencies) {
+        content += "<br><br><b>Normalizacija</b> ...<br><h4>TABLES</h4>";
+        // korak 1
+        var ro = [];
+        // korak 2
+        for (var i = 0; i < dependencies.length; i++) {
+          var roObject = {};
+          roObject.dependency = [];
+          var depAttrArray = [];
+          if (dependencies[i].left)
+          for (var y = 0; y < dependencies[i].left.length; y++) {
+            depAttrArray.push(dependencies[i].left[y]);
+          }
+          if (dependencies[i].right)
+          for (var y = 0; y < dependencies[i].right.length; y++) {
+            depAttrArray.push(dependencies[i].right[y]);
+          }
+          
+          if (ro.length === 0) {
+            roObject.attributes = depAttrArray;
+            roObject.dependency.push(dependencies[i].string);
+            roObject.attrString = depAttrArray.join(', ');
+            ro.push(roObject);
+            continue;
+          }
+          var maxFound = 0;
+          var maxK = 0;
+          for (var k = 0; k < ro.length; k++) {
+            var toCheck = ro[k].attributes;
+            var found = 0;
+            for (var j = 0; j < depAttrArray.length; j++) {
+              var theAttribute = depAttrArray[j];
+              var foundAttribute = false;
+              for (var y = 0; y < toCheck.length; y++) {
+                if (theAttribute === toCheck[y]) {
+                  foundAttribute = true;
+                  break;
+                }
+              }
+              if (foundAttribute !== false) {
+                found++;
+              }
+              if (maxFound < found) {
+                maxFound = found;
+                maxK = k;
+              }
+            }
+          }
+          if (maxFound < depAttrArray.length){
+            roObject.attributes = depAttrArray;
+            roObject.dependency.push(dependencies[i].string);
+            roObject.attrString = depAttrArray.join(', ');
+            ro.push(roObject);
+          }
+          if (maxFound === depAttrArray.length) {
+            function findDep(theDep) {return theDep === dependencies[i].string}
+            if (ro[maxK].dependency.find(findDep) === undefined)
+            ro[maxK].dependency.push(dependencies[i].string);
+          }
+        }
+        // korak 3
+        var pkeyArray = pkeys[0].string.split(", ");
+        var roObject = {};
+        roObject.dependency = [];
+        
+        for (var k = 0; k < ro.length; k++) {
+          if (pkeyArray == 0)
+            break;
+          var toCheck = ro[k].attributes;
+          var found = 0;
+          for (var j = 0; j < pkeyArray.length; j++) {
+            var theAttribute = pkeyArray[j];
+            var foundAttribute = false;
+            for (var y = 0; y < toCheck.length; y++) {
+              if (theAttribute === toCheck[y]) {
+                foundAttribute = true;
+                break;
+              }
+            }
+            if (foundAttribute !== false) {
+              found++;
+            }
+          }
+          if (found < pkeyArray.length){
+            roObject.attributes = pkeyArray;
+            roObject.attrString = pkeyArray.join(', ');
+            roObject.dependency.push('PRIMARY KEY: ' + pkeyArray.join(', '));
+            ro.push(roObject);
+            break;
+          }
+          if (found === pkeyArray.length) {
+            function findDep(theDep) {
+              var result = pkeyArray.join(', ');
+              return (theDep === result);
+            }            
+            if (ro[k].dependency.find(findDep) == undefined){  
+              var theString = pkeyArray.join(', ');
+              ro[k].dependency.push('PRIMARY KEY: ' + theString);
+              break;    
+            }
+          }
+        }
+        
+        content += "<table class=\'table table-striped\'><thead><td>Atributes</td><td>Containes</td></thead>";
+        for (var i = 0; i < ro.length; i++) {
+          content+= "<tr><td>" + ro[i].attributes.join(', ')+ "</td><td>" + ro[i].dependency.join(', ') + "</td></tr>";
+        }
+      }
+          
+      function checkIfAlready(pkeys, dependencies) {
+        if (dependencies.length === 0)
+          return content =  'Nalazi se u 3. nf';
+        else {
+          for (var i = 0; i < dependencies.length; i++) {
+            dependencies[i].flag = 0;
+            // trivial check
+            for (var y = 0; y < dependencies[i].left.length; y++) {
+              var left = dependencies[i].left[y];
+              function findExisting(theAttribute) {return theAttribute===left};
+              var found = dependencies[i].right.find(findExisting)
+              if (found) {
+                var index = dependencies[i].right.indexOf(found);
+                dependencies[i].right.splice(index, 1);
+              }            
+            }
+            if (dependencies[i].right.length === 0) {
+              dependencies[i].flag = 1;
+              continue;
+            }
+            // superkey
+              for (var y = 0; y < pkeys.length; y++) {
+                if (dependencies[i].flag === 1){
+                  break;
+                }
+                var thePkey = pkeys[y].string.split(", ");
+                var theLength = 0;
+                for (var k = 0; k < thePkey.length; k++) {
+                  var key = thePkey[k];
+                  function findInPkey(theAttribute) {return theAttribute === key};
+                  var found = dependencies[i].left.find(findInPkey);
+                  if (found) {
+                    theLength++;
+                  }
+                }
+                if (theLength == thePkey.length)
+                  dependencies[i].flag = 1;
+                  continue;
+              }    
+              if (dependencies[i].flag === 1){
+                continue;
+              }  
+            // right is part of pkey
+              for (var y = 0; y < pkeys.length; y++) {
+                var thePkey = pkeys[y].string.split(", ");
+                var theLength = 0;
+                for (var k = 0; k < dependencies[i].right.length; k++) {
+                  var theAttribute = dependencies[i].right[k];
+                  function findInPkey(key) {return theAttribute === key};
+                  var found = thePkey.find(findInPkey);
+                  if (!found) {
+                    break;
+                  }
+                  theLength++;
+                }
+                if (theLength === dependencies[i].right.length)
+                  dependencies[i].flag = 1;
+              }            
+              if (dependencies[i].flag === 0) {
+                content = 'Ne nalazi se u 3.NF zbog FO: ' + dependencies[i].string;
+                return normalize(pkeys, dependencies);
+              }
+            }
+              content =  'Nalazi se u 3. nf';
+          }
+      }
+      checkIfAlready(pkeys, dependencies);
+      
+      resultDiv.innerHTML = content;

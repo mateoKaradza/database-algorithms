@@ -1,0 +1,33 @@
+doctype html
+html
+	head
+		link(rel='stylesheet', href='/stylesheets/bootstrap.css')
+		block head
+
+		block title
+	body
+	.container
+		nav.navbar.navbar-default
+				ul.nav.col-md-4.navbar-nav
+					li
+						a(href='/') Homepage
+					li
+						a(href='/Schemas') Schemas
+				if (user!=null)
+					form(class='navbar-form navbar-right col-md-6' action'')
+						| &nbsp
+						span
+						| Welcome, #{user.username} &nbsp
+						a(class='btn btn-default' href='Users/Logout') Logout
+						| &nbsp
+				else
+					form(class='navbar-form navbar-right' method='post' action='/Users/Login')
+						div(class='form-group')
+							input(type='text' class='form-control' placeholder='Username' name='username')
+							input(type='password' class='form-control' placeholder='******' name='password')
+							| &nbsp
+							button(type='submit' class='btn btn-default') Login
+							| &nbsp
+							a(class='btn btn-success' href='/Users/Register') Register
+							| &nbsp
+		block body

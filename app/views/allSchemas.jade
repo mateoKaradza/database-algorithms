@@ -1,0 +1,31 @@
+extends layout
+
+block title
+  title All Schemas
+
+block body
+  h1 All Schemas
+  a(href="/Schemas/New", class="btn btn-primary") Add new Schema
+  br
+  br
+  if (result.length == 0)
+    div.alert.alert-warning
+      p You have no schemas connected with your account. Create one to edit it.
+  else
+    table.table-hover.table.table-striped
+      thead
+        tr
+          th Schema ID
+          th Date Created
+          th Created by
+          th Dependencies
+          th Actions
+      tbody
+        each val in result
+          tr
+            td= val.schema_id
+            td= val.date_created
+            td= val.username
+            td= val.dependencies
+            td
+              a(href='/Schemas/' + val.schema_id, class="btn btn-default btn-xs") View schema

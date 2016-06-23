@@ -19,78 +19,80 @@ router.get('/', function (req, res) {
 
 });
 
-router.get('/login', function (req, res, next) {
+router.get('/Login', function (req, res, next) {
     if(req.isAuthenticated()) res.redirect('/');
     res.render('signin', {title: 'Sign In'});
 });
 
-router.post('/login', function (req, res, next) {
+router.post('/Login', function (req, res, next) {
   passport.authenticate('local', { successRedirect: '/',
-                         failureRedirect: '/Users/login'}, function(err, user, info) {
+                         failureRedirect: '/'}, function(err, user, info) {
      if(err) {
-        return res.render('signin', {title: 'Sign In', errorMessage: err.message});
+        return res.render('index', {title: 'Sign In', errorMessage: err.message});
      }
-
      if(!user) {
-        return res.render('signin', {title: 'Sign In', errorMessage: info.message});
+        return res.render('index', {title: 'Sign In', errorMessage: info.message});
      }
      return req.logIn(user, function(err) {
         if(err) {
-           return res.render('signin', {title: 'Sign In', errorMessage: err.message});
+           return res.render('index', {title: 'Sign In', errorMessage: err.message});
         } else {
-
-          if (!req.body.remember) {
-            req.session.cookie.expires = false;
-          } else {
-            req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
-          }
+          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
           res.redirect('/');
-      }
+        }
       });
 
   })(req, res, next);
 });
 
-
-
-router.get('/register', function (req, res, next) {
+router.get('/Register', function (req, res, next) {
+  console.log('test');
   if(req.isAuthenticated()) {
      res.redirect('/');
   } else {
-     res.render('signup', {title: 'Sign Up'});
+     res.render('register', {title: 'Sign Up'});
   }
 });
 
-router.post('/register', function (req, res, next) {
+router.post('/Register', function (req, res, next) {
   var user = req.body;
 
   // Check for email
-
-  userFunctions.GetUser(user.username, function (result) {
-    if(result) {
-       res.render('signup', {title: 'signup', errorMessage: 'username already exists'});
+  userFunctions.GetUserByEmail(user.email, function (result) {
+    if(result) { res.render('register', {title:'Reg Title', errorMessage: 'User with that email already exists'});
     } else {
-       //****************************************************//
-       // MORE VALIDATION GOES HERE(E.G. PASSWORD VALIDATION)
-       //****************************************************//
-       var password = user.password;
-       var hash = bcrypt.hashSync(password);
+    userFunctions.GetUser(user.username, function (result) {
+      if(result) {
+         res.render('register', {title: 'signup', errorMessage: 'username already exists'});
+      } else {
+         if (user.password1 == user.password2) {
+           if (user.password1.length > 5) {
 
-       userFunctions.AddUser(user.username, hash, function (result) {
-         res.redirect('/');
-       });
+           var password = user.password1;
+           var hash = bcrypt.hashSync(password);
 
-    }
-  });
+           userFunctions.AddUser(user.username, hash, user.email, function (result) {
+             res.redirect('/');
+           });
+         } else {
+           res.render('register', {title: 'signup', errorMessage: 'Password should be long at least 6 characters'});
+         }
+
+       } else {
+         res.render('register', {title: 'signup', errorMessage: 'Passwords do not match'});
+       }
+      }
+    });
+  }});
 });
 
-router.get('/logout', function (req, res, next) {
+router.get('/Logout', function (req, res, next) {
   if(!req.isAuthenticated()) {
      notFound404(req, res, next);
   } else {
      req.logout();
      req.session.destroy();
-     res.redirect('/users/login');
+     res.redirect('/');
   }
 });
 

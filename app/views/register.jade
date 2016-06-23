@@ -1,0 +1,16 @@
+extends layout
+
+block title
+  title Register
+
+block body
+  h1 Create an account
+  div.col-md-8
+    form(method="post" action="/Users/Register")
+      if(typeof(errorMessage) !== 'undefined')
+        div.alert.alert-warning #{errorMessage}
+      input.form-control(type="text" name="username" placeholder="Username" required="true")
+      input.form-control(type="email" name="email" placeholder="Email" required="true")
+      input.form-control(type="password" name="password1" placeholder="Your Password" required="true")
+      input.form-control(type="password" name="password2" placeholder="Confirm Password" required="true")
+      button.btn.btn-default.pull-right(type="submit") Create Account

@@ -1,0 +1,12 @@
+extends layout
+
+block title
+	title Homepage
+
+block body
+	h1 Welcome
+
+	if(typeof(errorMessage) !== 'undefined')
+		div.alert.alert-info #{errorMessage}
+
+	

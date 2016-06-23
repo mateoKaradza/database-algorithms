@@ -1,0 +1,70 @@
+extends layout.jade
+
+block title
+	title View Schema
+
+block body
+
+	h1 View Schema
+	a(href="/Schemas/Attribute/New/" + schema.schema_id, class="btn btn-primary") Add new Attribute
+	| &nbsp
+	a(href="/Schemas/Dependency/New/" + schema.schema_id, class="btn btn-primary") Add new Dependency
+	| &nbsp
+	a(href="/Schemas/PrimaryKey/New/" + schema.schema_id, class="btn btn-primary") Add new Primary Key
+	| &nbsp
+	a(href="/Schemas/Normalize/" + schema.schema_id, class="btn btn-success") Normalize into 3rd Normal Form
+	
+	table.table.table-striped
+		thead
+			tr
+				th Schema ID
+				th Username
+				th Date Created
+		tbody
+			tr
+				td= schema.schema_id
+				td= schema.username
+				td= schema.date_created
+				
+	if attributes.length
+		h3 Attributes
+		ul.list-group
+			each attribute in attributes
+				li.list-group-item #{attribute.attribute}
+				
+	if pkeys
+		h3 Primary Keys
+		table.table.table-striped
+			thead
+				tr
+					th Primary Keys
+					th Action
+			tbody
+				each pkey in pkeys
+					tr
+						td 
+							if pkey.string
+								| #{pkey.string}
+							else
+								| empty
+						td
+							a(href="/Schemas/PrimaryKey/Edit/" + pkey.pkey_id, class="btn btn-primary btn-xs") Edit
+				
+	if dependencies.length
+		h3 Dependencies
+		table.table.table-striped
+			thead
+				tr
+					th Content
+					th Action
+			tbody
+				each dependency in dependencies
+					tr
+						td 
+							if dependency.string
+								| #{dependency.string}
+							else
+								| empty
+						td
+							a(href="/Schemas/Dependency/Edit/" + dependency.dep_id, class="btn btn-primary btn-xs") Edit
+					

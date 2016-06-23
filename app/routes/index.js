@@ -8,12 +8,10 @@ var bcrypt = require('bcrypt-nodejs');
 var userFunctions = require('../functions/userFunctions.js')
 
 router.get('/', function (req, res, next) {
-    if(!req.isAuthenticated()) {
-       res.redirect('/users/login');
-    } else {
-       var user = req.user;
-       res.render('index', {title: 'Home', user: user});
-    }
+    var user = null;
+    if(req.isAuthenticated())
+       user = req.user;
+    res.render('index', {title: 'Home', user: user});
 });
 
 module.exports = router;

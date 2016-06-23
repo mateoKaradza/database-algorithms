@@ -1,0 +1,26 @@
+extends layout.jade
+
+block title
+  title Edit Private Key
+
+block body
+  h1 Edit Primary Key
+  h2 #{funDep}
+  if attributes.length > 0
+    form(name="editPkey", action="/Schemas/PrimaryKey/Edit", method="post")
+      .form-group
+        input(type="hidden", value=pkey_id class="form-control", name="pkey_id")
+        input(type="hidden", value=schema_id class="form-control", name="schema_id")
+        h3 Choose attribute
+        ul.list-group
+          each attribute in attributes
+            each value in pkey_details
+              if value.attribute == attribute.attribute
+                - attribute.used = true
+            li.list-group-item
+              input(type="checkbox", name="pkey_attribute_#{attribute.attribute}" checked=attribute.used)
+              | &nbsp #{attribute.attribute} &nbsp
+        button(type="submit", class="btn btn-success") Submit Changes
+  else
+    div.alert.alert-info First you need to have at least 1 attribute added to the schema.
+    

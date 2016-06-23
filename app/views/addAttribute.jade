@@ -1,0 +1,15 @@
+extends layout.jade
+
+block title
+	title Add Attribute
+
+block body
+	h1 Add new Attribute
+	if(typeof(errorMessage) !== 'undefined')
+		div.alert.alert-info #{errorMessage}
+	form(name="newAttribute", action="/Schemas/Attribute/New", method="post")
+		.form-group
+			input(type="hidden", class="form-control", name="schema_id" value=schema_id)
+			label(for="First Name") Attribute name:
+			input(type="text", class="form-control", name="attribute")
+		button(type="submit", class="btn btn-primary") Add new Attribute

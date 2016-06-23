@@ -1,0 +1,42 @@
+extends layout.jade
+
+block title
+  title Edit Dependency
+
+block body
+  h1 Edit Dependency
+  h2 
+    if funDep
+      | #{funDep.string}
+    else
+      | empty
+  if attributes.length > 1
+    form(name="editProduct", action="/Schemas/Dependency/Edit", method="post")
+      .form-group
+        input(type="hidden", value=dep_id class="form-control", name="dep_id")
+        input(type="hidden", value=schema_id class="form-control", name="schema_id")
+        h3 Dependencies
+        table.table.table-striped
+          thead
+            tr
+              th Attribute name
+              th Left side
+              th Right side
+          tbody
+            each attribute in attributes
+              each value in att_dep
+                if value.attribute == attribute.attribute
+                  if value.left_side == 1
+                    - attribute.left = true;
+                  else
+                    - attribute.right = true;
+              tr
+                td #{attribute.attribute}
+                td 
+                  input(type="checkbox", name="left_side_attribute_#{attribute.attribute}" checked=attribute.left)
+                td 
+                  input(type="checkbox", name="right_side_attribute_#{attribute.attribute}" checked=attribute.right)
+        button(type="submit", class="btn btn-success") Submit Changes
+  else
+    div.alert.alert-info First you need to have at least 2 attributes added to the schema.
+    
